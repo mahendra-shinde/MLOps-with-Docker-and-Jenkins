@@ -1,0 +1,8 @@
+
+services:
+  model:
+    build: .
+    volumes:
+      - ./work:/home/mlops/results
+      - ./data:/home/mlops/processed_data
+      

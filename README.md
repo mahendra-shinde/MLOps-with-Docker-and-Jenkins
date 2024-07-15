@@ -209,7 +209,6 @@ Another reason why Docker is really useful is probably the same reason why you a
 
 So, without any further ado, let's get straight to the point!
 
-
 # Automating a ML pipeline with Jenkins
 
 For this step we will use Jenkins, a widely famous open source automation server that provides an endless list of plugins to support building, deploying and automating any project.
