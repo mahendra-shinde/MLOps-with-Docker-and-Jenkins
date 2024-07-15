@@ -108,10 +108,10 @@ RUN mkdir model raw_data processed_data results
 And then we set the directories as environment variables (so we don’t hard code paths all over the code)
 
 ```dockerfile
-ENV MODEL_DIR=/home/jovyan/model
-ENV RAW_DATA_DIR=/home/jovyan/raw_data
-ENV PROCESSED_DATA_DIR=/home/jovyan/processed_data
-ENV RESULTS_DIR=/home/jovyan/results
+ENV MODEL_DIR=/home/mlops/model
+ENV RAW_DATA_DIR=/home/mlops/raw_data
+ENV PROCESSED_DATA_DIR=/home/mlops/processed_data
+ENV RESULTS_DIR=/home/mlops/results
 ENV RAW_DATA_FILE=adult.csv
 ```
 
@@ -168,7 +168,7 @@ sudo -S docker container exec model python3 test.py
 ```
 - Show validation accuracy and test accuracy
 ```bash
-sudo -S docker container exec model cat /home/jovyan/results/train_metadata.json /home/jovyan/results/test_metadata.json 
+sudo -S docker container exec model cat /home/mlops/results/train_metadata.json /home/mlops/results/test_metadata.json 
 ```
 
 :ledger: NOTE: If you are curious enough (I guess you are) you will want to know what each script actually does. Don't worry, if you are familiar with basic Machine Learning tools (here I basically use Pandas and SKlearn libraries), you can open the scripts and have a look at the code. It's not a big deal and most of the lines are  commented. If you want a deep understanding or you are looking for more complex models than the one shown here, you can take a look at [this notebook](https://www.kaggle.com/adro99/from-na-ve-to-xgboost-and-ann-adult-census-income). 
@@ -179,7 +179,7 @@ sudo -S docker container exec model cat /home/jovyan/results/train_metadata.json
 When building pipelines is common to have a step dedicated to test if the application is well built and good enough to be deployed into production. In this proyect, we will use a conditional statement that tests if the validation accuracy is higher than a threshold. If it is, the model is deployed. If not, the process stops. The code for doing this is the following:
 
 ```bash
-val_acc=$(sudo -S docker container exec model  jq .validation_acc /home/jovyan/results/train_metadata.json)
+val_acc=$(sudo -S docker container exec model  jq .validation_acc /home/mlops/results/train_metadata.json)
 threshold=0.8
 
 if echo "$threshold > $val_acc" | bc -l | grep -q 1
@@ -188,7 +188,7 @@ then
 else
    echo 'validation accuracy is higher than the threshold'
    sudo -S docker container exec model python3 test.py
-   sudo -S docker container exec model cat /home/jovyan/results/train_metadata.json /home/jovyan/results/test_metadata.json 
+   sudo -S docker container exec model cat /home/mlops/results/train_metadata.json /home/mlops/results/test_metadata.json 
 fi
 ```
 
@@ -373,7 +373,7 @@ For the "test" job, select the "train" job for the Build Triggers section,
 and in the Build section write the following code:
 
 ```bash
-val_acc=$(sudo -S docker container exec model  jq .validation_acc /home/jovyan/results/train_metadata.json)
+val_acc=$(sudo -S docker container exec model  jq .validation_acc /home/mlops/results/train_metadata.json)
 threshold=0.8
 
 if echo "$threshold > $val_acc" | bc -l | grep -q 1
@@ -382,7 +382,7 @@ then
 else
    echo 'validation accuracy is higher than the threshold'
    sudo -S docker container exec model python3 test.py
-   sudo -S docker container exec model cat /home/jovyan/results/train_metadata.json /home/jovyan/results/test_metadata.json 
+   sudo -S docker container exec model cat /home/mlops/results/train_metadata.json /home/mlops/results/test_metadata.json 
 fi    
 
 sudo -S docker rm -f model
